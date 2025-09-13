@@ -59,32 +59,16 @@ export default class SRPlugin extends Plugin {
         leaf?: WorkspaceLeaf,
     ) => void;
 
-    // Завантажує сам плагін і відповідні йому налаштування
     async onload(): Promise<void> {
         await this.loadPluginData();
         this.tabViewManager = new TabViewManager(this);
 
-        // Закриває всі відкриті вкладки при завантаженні плагіна, 
-        // щоб уникнути багів та порожніх вікон
-
-        // Obsidian завантажує плагін і також незакриті вкладки, які були
-        // відкриті до завантаження плагіна. Це може призвести до багів
-
-        // Закриває всі відкриті вкладки при завантаженні плагіна
-        // app - головний об'єкт Obsidian API, який надає:
-        // workspace - об'єкт, який надає доступ до всіх відкритих вкладок
-        // onLayoutReady - метод, який викликається, коли Obsidian завершує завантаження
         this.app.workspace.onLayoutReady(async () => {
             this.tabViewManager.closeAllTabViews();
         });
 
-        // Створюємо об'єкт, який буде зберігати чергу нотаток для повторення у 
-        // контексті Spaced Repetition
-        // він також обчислює кількість переглянутих/непереглянутих нотаток
-        // в кожній колоді
         const noteReviewQueue = new NoteReviewQueue();
 
-        // Це об'єкт, який буде керувати чергою карток для повторення
         this.nextNoteReviewHandler = new NextNoteReviewHandler(
             this.app,
             this.data.settings,
